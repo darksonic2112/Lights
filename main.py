@@ -1,16 +1,29 @@
-# This is a sample Python script.
+import pygame
 
-# Press Umschalt+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+pygame.init()
 
+window_width = 600
+window_height = 600
+window = pygame.display.set_mode((window_width, window_height))
+pygame.display.set_caption("Lights")
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Strg+F8 to toggle the breakpoint.
+white = (255, 255, 255)
+dark_grey = (25, 25, 25)
+yellow = (255, 255, 0)
 
+font = pygame.font.Font(None, 36)
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+is_running = True
+while is_running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            is_running = False
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            pass
+
+    window.fill(dark_grey)
+
+    pygame.display.flip()
+
+pygame.quit()
