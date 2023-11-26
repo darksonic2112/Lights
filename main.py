@@ -2,8 +2,10 @@ import pygame
 
 pygame.init()
 
-window_width = 600
-window_height = 600
+# Small size field: 14x14
+# Mid-size field: 25x25
+window_width = 1000
+window_height = 1000
 window = pygame.display.set_mode((window_width, window_height))
 pygame.display.set_caption("Lights")
 
