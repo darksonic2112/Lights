@@ -2,13 +2,19 @@ import pygame
 import pandas as pd
 
 pygame.init()
-maze_field = "lights-puzzles-small\\lights-small-1.csv"
+maze_name = "lights-small-1.csv"
+maze_dir = ("lights-puzzles\\" + maze_name)
 
 # Small size field: 14x14 blocks
 # Mid-size field: 25x25 blocks
 # Blocks are 40x40 px
-window_width = 1000
-window_height = 1000
+if maze_name[6] == "-":
+    window_width = 420
+    window_height = 420
+else:
+    window_width = 750
+    window_height = 750
+
 window = pygame.display.set_mode((window_width, window_height))
 pygame.display.set_caption("Lights")
 
@@ -16,8 +22,9 @@ white = (255, 255, 255)
 dark_grey = (25, 25, 25)
 yellow = (255, 255, 0)
 font = pygame.font.Font(None, 36)
+blocks_size = 30
 
-df = pd.read_csv(maze_field, header=None, sep=";")
+df = pd.read_csv(maze_dir, header=None, sep=";")
 print(df[1][0])
 
 
@@ -25,7 +32,7 @@ def draw_rect():
     pass
 
 
-rect = (0, 0, 40, 40)
+rect = (0, 0, blocks_size, blocks_size)
 
 is_running = True
 while is_running:
