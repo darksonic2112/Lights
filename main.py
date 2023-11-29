@@ -40,10 +40,10 @@ def draw_field():
         for column_letter in range(len(df[row_letter])):
             if df.isnull()[row_letter][column_letter]:
                 draw_block(block_position_x, block_position_y)
-                block_position_x += 40
+                block_position_x += 30
                 if block_position_x == window_width:
                     block_position_x = 0
-                    block_position_y += 40
+                    block_position_y += 30
             else:
                 print(df[row_letter][column_letter])
 
