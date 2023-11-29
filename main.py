@@ -27,19 +27,30 @@ global block_position_x, block_position_y
 block_position_x = 0
 block_position_y = 0
 
+global numbers
+numbers = []
+for number in range(4):
+    numbers.append(number)
 
-def draw_block(block_position_x, block_position_y):
+
+def draw_block(block_position_x, block_position_y, color):
     rect = (block_position_x, block_position_y, block_size, block_size)
-    pygame.draw.rect(window, white, rect)
+    pygame.draw.rect(window, color, rect)
     pygame.draw.rect(window, dark_grey, rect, 2)
 
 def draw_field():
-    global block_position_x, block_position_y
+    global block_position_x, block_position_y, numbers
     df = pd.read_csv(maze_dir, header=None, sep=";")
     for row_letter in range(len(df)):
         for column_letter in range(len(df[row_letter])):
-            if df.isnull()[row_letter][column_letter]:
-                draw_block(block_position_x, block_position_y)
+            if df[row_letter][column_letter] in numbers:
+                draw_block(block_position_x, block_position_y, dark_grey)
+                block_position_x += 30
+                if block_position_x == window_width:
+                    block_position_x = 0
+                    block_position_y += 30
+            elif df.isnull()[row_letter][column_letter]:
+                draw_block(block_position_x, block_position_y, white)
                 block_position_x += 30
                 if block_position_x == window_width:
                     block_position_x = 0
