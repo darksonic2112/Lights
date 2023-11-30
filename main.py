@@ -9,8 +9,6 @@ white = (255, 255, 255)
 dark_grey = (25, 25, 25)
 yellow = (255, 255, 0)
 
-block_size = 30
-font = pygame.font.Font(None, 36)
 # Small size field: 14x14 blocks
 # Mid-size field: 25x25 blocks
 # Blocks are 40x40 px
@@ -22,6 +20,9 @@ else:
     window_height = 750
 window = pygame.display.set_mode((window_width, window_height))
 pygame.display.set_caption("Lights")
+
+block_size = 30
+font = pygame.font.Font(None, 36)
 
 global block_position_x, block_position_y
 block_position_x = 0
@@ -56,8 +57,8 @@ def draw_field():
                     block_position_x = 0
                     block_position_y += 30
             else:
-                print(df[row_letter][column_letter])
-
+                #print(df[row_letter][column_letter])
+                pass
 
 is_running = True
 while is_running:
