@@ -22,7 +22,7 @@ window = pygame.display.set_mode((window_width, window_height))
 pygame.display.set_caption("Lights")
 
 block_size = 30
-font = pygame.font.Font(None, 36)
+font = pygame.font.Font(None, 30)
 
 global block_position_x, block_position_y
 block_position_x = 0
@@ -30,14 +30,26 @@ block_position_y = 0
 
 global numbers
 numbers = []
-for number in range(4):
-    numbers.append(number)
+for index in range(4):
+    numbers.append(index)
 
 
-def draw_block(block_position_x, block_position_y, color):
+def draw_white_block(block_position_x, block_position_y):
     rect = (block_position_x, block_position_y, block_size, block_size)
-    pygame.draw.rect(window, color, rect)
+    pygame.draw.rect(window, white, rect)
     pygame.draw.rect(window, dark_grey, rect, 2)
+
+
+def draw_dark_grey_block(block_position_x, block_position_y, number):
+    number_rect = pygame.Rect(block_position_x, block_position_y, block_size, block_size)
+    number_surface = font.render(number, True, white)
+    number_text_rect = number_surface.get_rect()
+    number_text_rect.center = number_rect.center
+    pygame.draw.rect(window, dark_grey, number_rect)
+    pygame.draw.rect(window, dark_grey, number_rect, 2)
+    text_x = number_rect.centerx - number_text_rect.width / 2
+    text_y = number_rect.centery - number_text_rect.height / 2
+    window.blit(number_surface, (text_x, text_y))
 
 def draw_field():
     global block_position_x, block_position_y, numbers
@@ -45,13 +57,14 @@ def draw_field():
     for row_letter in range(len(df)):
         for column_letter in range(len(df[row_letter])):
             if df[row_letter][column_letter] in numbers:
-                draw_block(block_position_x, block_position_y, dark_grey)
+                number = str(int(df[row_letter][column_letter]))
+                draw_dark_grey_block(block_position_x, block_position_y, number)
                 block_position_x += 30
                 if block_position_x == window_width:
                     block_position_x = 0
                     block_position_y += 30
             elif df.isnull()[row_letter][column_letter]:
-                draw_block(block_position_x, block_position_y, white)
+                draw_white_block(block_position_x, block_position_y)
                 block_position_x += 30
                 if block_position_x == window_width:
                     block_position_x = 0
