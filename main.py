@@ -24,6 +24,7 @@ block_size = 30
 font = pygame.font.Font(None, 30)
 
 rows, cols = (window_width // block_size, window_height // block_size)
+global maze_field
 maze_field = [["white" for i in range(cols)] for j in range(rows)]
 
 window = pygame.display.set_mode((window_width, window_height))
@@ -63,11 +64,11 @@ def draw_dark_grey_block(block_position_x, block_position_y, number):
     number_text_rect.center = number_rect.center
     pygame.draw.rect(window, dark_grey, number_rect)
     pygame.draw.rect(window, dark_grey, number_rect, 2)
-    row = block_position_x // block_size
-    column = block_position_y // block_size
     text_x = number_rect.centerx - number_text_rect.width / 2
     text_y = number_rect.centery - number_text_rect.height / 2
-    #maze_field[][] = "dark_grey"
+    column = block_position_x // block_size
+    row = block_position_y // block_size
+    maze_field[row][column] = "dark_grey"
     window.blit(number_surface, (text_x, text_y))
     pygame.display.flip()
 
@@ -76,9 +77,9 @@ def draw_empty_block(block_position_x, block_position_y):
     rect = pygame.Rect(block_position_x, block_position_y, block_size, block_size)
     pygame.draw.rect(window, dark_grey, rect)
     pygame.draw.rect(window, dark_grey, rect, 2)
-    row = block_position_x // block_size
-    column = block_position_y // block_size
-    #maze_field[][] = "dark_grey"
+    column = block_position_x // block_size
+    row = block_position_y // block_size
+    maze_field[row][column] = "dark_grey"
     pygame.display.flip()
 
 
@@ -123,9 +124,10 @@ def draw_field():
                     block_position_y += 30
                     block_position_x = 0
 
-
     pygame.display.flip()
 
+
+draw_field()
 
 is_running = True
 while is_running:
@@ -139,8 +141,6 @@ while is_running:
             if mouse_x and mouse_y in lit_blocks:
                 print("Test")
             draw_light(mouse_x - (mouse_x % 30), mouse_y - (mouse_y % 30))
-    draw_field()
-    print(numbers)
 
     pygame.display.flip()
 
