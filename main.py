@@ -2,7 +2,7 @@ import pygame
 import pandas as pd
 
 pygame.init()
-maze_name = "lights-small-1.csv"
+maze_name = "lights-small-3.csv"
 maze_dir = ("lights-puzzles\\" + maze_name)
 
 white = (255, 255, 255)
