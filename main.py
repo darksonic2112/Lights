@@ -3,7 +3,7 @@ import pandas as pd
 
 pygame.init()
 #  Enter "lights1" (1-5) or "lights-small-1" (1-5) for the different mazes
-maze_name = "lights1.csv"
+maze_name = "lights-small-1.csv"
 maze_dir = ("lights-puzzles\\" + maze_name)
 
 white = (255, 255, 255)
@@ -12,7 +12,7 @@ yellow = (255, 255, 0)
 
 # Small size field: 14x14 blocks
 # Mid-size field: 25x25 blocks
-# Blocks are 40x40 px
+# block_size: is set
 if maze_name[6] == "-":
     window_width = 420
     window_height = 420
@@ -58,7 +58,7 @@ def draw_white_block(block_position_x, block_position_y):
 
 def draw_dark_grey_block(block_position_x, block_position_y, number):
     number_rect = pygame.Rect(block_position_x, block_position_y, block_size, block_size)
-    number_surface = font.render(number, True, white)
+    number_surface = font.render(str(int(float(number))), True, white)
     number_text_rect = number_surface.get_rect()
     number_text_rect.center = number_rect.center
     pygame.draw.rect(window, dark_grey, number_rect)
@@ -69,6 +69,16 @@ def draw_dark_grey_block(block_position_x, block_position_y, number):
     text_y = number_rect.centery - number_text_rect.height / 2
     #maze_field[][] = "dark_grey"
     window.blit(number_surface, (text_x, text_y))
+    pygame.display.flip()
+
+
+def draw_empty_block(block_position_x, block_position_y):
+    rect = pygame.Rect(block_position_x, block_position_y, block_size, block_size)
+    pygame.draw.rect(window, dark_grey, rect)
+    pygame.draw.rect(window, dark_grey, rect, 2)
+    row = block_position_x // block_size
+    column = block_position_y // block_size
+    #maze_field[][] = "dark_grey"
     pygame.display.flip()
 
 
@@ -89,30 +99,31 @@ def draw_light(light_bulb_position_x, light_bulb_position_y):
 def draw_field():
     global block_position_x, block_position_y, numbers
     df = pd.read_csv(maze_dir, header=None, sep=";")
-    for row_letter in range(len(df)):
-        for column_letter in range(len(df[row_letter])):
-            if df[row_letter][column_letter] in numbers:
-                number = str(int(df[row_letter][column_letter]))
+    for column_letter in range(len(df)):
+        for row_letter in range(len(df[column_letter])):
+            # print(df[row_letter][column_letter])
+            if df[row_letter][column_letter] == "x":
+                draw_empty_block(block_position_x, block_position_y)
+                block_position_x += 30
+                if block_position_x >= window_width:
+                    block_position_y += 30
+                    block_position_x = 0
+            elif float(df[row_letter][column_letter]) in numbers:
+                number = df[row_letter][column_letter]
+                number = str(number)
                 draw_dark_grey_block(block_position_x, block_position_y, number)
                 block_position_x += 30
-                if block_position_x == window_width:
-                    block_position_x = 0
+                if block_position_x >= window_width:
                     block_position_y += 30
-            elif df[row_letter][column_letter] == "x":
-                draw_dark_grey_block(block_position_x, block_position_y, -1)
-                block_position_x += 30
-                if block_position_x == window_width:
                     block_position_x = 0
-                    block_position_y += 30
-            elif df.isnull()[row_letter][column_letter]:
+            else:
                 draw_white_block(block_position_x, block_position_y)
                 block_position_x += 30
-                if block_position_x == window_width:
-                    block_position_x = 0
+                if block_position_x >= window_width:
                     block_position_y += 30
-            else:
-                #  print(df[row_letter][column_letter])
-                pass
+                    block_position_x = 0
+
+
     pygame.display.flip()
 
 
@@ -129,7 +140,7 @@ while is_running:
                 print("Test")
             draw_light(mouse_x - (mouse_x % 30), mouse_y - (mouse_y % 30))
     draw_field()
-    print(maze_field)
+    print(numbers)
 
     pygame.display.flip()
 
