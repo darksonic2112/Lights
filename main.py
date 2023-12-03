@@ -2,7 +2,8 @@ import pygame
 import pandas as pd
 
 pygame.init()
-maze_name = "lights-small-3.csv"
+#  Enter "lights1" (1-5) or "lights-small-1" (1-5) for the different mazes
+maze_name = "lights-small-1.csv"
 maze_dir = ("lights-puzzles\\" + maze_name)
 
 white = (255, 255, 255)
@@ -24,6 +25,8 @@ pygame.display.set_caption("Lights")
 block_size = 30
 font = pygame.font.Font(None, 30)
 
+light_bulb = pygame.image.load("assets\\lightbulb.png")
+
 global block_position_x, block_position_y
 block_position_x = 0
 block_position_y = 0
@@ -38,6 +41,7 @@ def draw_white_block(block_position_x, block_position_y):
     rect = (block_position_x, block_position_y, block_size, block_size)
     pygame.draw.rect(window, white, rect)
     pygame.draw.rect(window, dark_grey, rect, 2)
+    pygame.display.flip()
 
 
 def draw_dark_grey_block(block_position_x, block_position_y, number):
@@ -50,6 +54,16 @@ def draw_dark_grey_block(block_position_x, block_position_y, number):
     text_x = number_rect.centerx - number_text_rect.width / 2
     text_y = number_rect.centery - number_text_rect.height / 2
     window.blit(number_surface, (text_x, text_y))
+    pygame.display.flip()
+
+
+def draw_light(light_bulb_position_x, light_bulb_position_y):
+    window.blit(light_bulb, (light_bulb_position_x + 3, light_bulb_position_y + 3))  # +3 to get it centered
+    df = pd.read_csv(maze_dir, header=None, sep=";")
+    for row_letter in range(len(df)):
+        for column_letter in range(len(df[row_letter])):
+            print(df[row_letter][column_letter])
+
 
 def draw_field():
     global block_position_x, block_position_y, numbers
@@ -70,8 +84,10 @@ def draw_field():
                     block_position_x = 0
                     block_position_y += 30
             else:
-                #print(df[row_letter][column_letter])
+                #  print(df[row_letter][column_letter])
                 pass
+    pygame.display.flip()
+
 
 is_running = True
 while is_running:
@@ -82,7 +98,7 @@ while is_running:
         if event.type == pygame.MOUSEBUTTONDOWN:
             pass
 
-    #window.fill(dark_grey)
+    #  window.fill(dark_grey)
     draw_field()
 
     pygame.display.flip()
