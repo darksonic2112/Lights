@@ -37,6 +37,12 @@ for index in range(4):
     numbers.append(index)
 
 
+def get_block_at_mouse_position(mouse_x, mouse_y):
+    column = mouse_x // block_size
+    row = mouse_y // block_size
+    return column, row
+
+
 def draw_white_block(block_position_x, block_position_y):
     rect = (block_position_x, block_position_y, block_size, block_size)
     pygame.draw.rect(window, white, rect)
@@ -58,7 +64,7 @@ def draw_dark_grey_block(block_position_x, block_position_y, number):
 
 
 def draw_light(light_bulb_position_x, light_bulb_position_y):
-    window.blit(light_bulb, (light_bulb_position_x + 3, light_bulb_position_y + 3))  # +3 to get it centered
+    window.blit(light_bulb, (light_bulb_position_x + 2, light_bulb_position_y + 3))  # +3 to get it centered
     df = pd.read_csv(maze_dir, header=None, sep=";")
     for row_letter in range(len(df)):
         for column_letter in range(len(df[row_letter])):
@@ -96,9 +102,9 @@ while is_running:
             is_running = False
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            pass
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            draw_light(mouse_x - (mouse_x % 30),  mouse_y - (mouse_y % 30))
 
-    #  window.fill(dark_grey)
     draw_field()
 
     pygame.display.flip()
