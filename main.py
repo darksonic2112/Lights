@@ -10,10 +10,11 @@ white = (255, 255, 255)
 dark_grey = (25, 25, 25)
 yellow = (255, 255, 0)
 
-# Small size field: 14x14 blocks
-# Mid-size field: 25x25 blocks
-# block_size: is set
-if maze_name[6] == "-":
+#  Small size field: 14x14 blocks
+#  Mid-size field: 25x25 blocks
+#  block size is set by the variable "block_size" of the size block_size * block_size
+#  block_size should be dividable by window_width and window_height, so that modulo equals 0
+if maze_name[6] == "-":  # "-" for the distinction of "lights" and "lights-small" puzzles
     window_width = 420
     window_height = 420
 else:
