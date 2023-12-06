@@ -3,22 +3,24 @@ import pandas as pd
 
 pygame.init()
 #  Enter "lights1" (1-5) or "lights-small-1" (1-5) for the different mazes
-maze_name = "lights-small-1.csv"
+maze_name = "lights1.csv"
 maze_dir = ("lights-puzzles\\" + maze_name)
 
 white = (255, 255, 255)
 dark_grey = (25, 25, 25)
 yellow = (255, 255, 0)
 
+menu_size = 120
+
 #  Small size field: 14x14 blocks
 #  Mid-size field: 25x25 blocks
 #  block size is set by the variable "block_size" of the size block_size * block_size
 #  block_size should be dividable by window_width and window_height, so that modulo equals 0
 if maze_name[6] == "-":  # "-" for the distinction of "lights" and "lights-small" puzzles
-    window_width = 420
+    window_width = 420 + menu_size
     window_height = 420
 else:
-    window_width = 750
+    window_width = 750 + menu_size
     window_height = 750
 
 block_size = 30
@@ -33,11 +35,9 @@ pygame.display.set_caption("Lights")
 
 light_bulb = pygame.image.load("assets\\lightbulb.png")
 
-global block_position_x, block_position_y
 block_position_x = 0
 block_position_y = 0
 
-global numbers
 numbers = []
 for index in range(5):
     numbers.append(index)
@@ -49,6 +49,15 @@ def get_block_at_mouse_position(mouse_x, mouse_y):
     column = mouse_x // block_size
     row = mouse_y // block_size
     return column, row
+
+
+def update_block():
+    global block_position_x, block_position_y
+    block_position_x += 30
+    if block_position_x >= window_width - menu_size:
+        block_position_y += 30
+        block_position_x = 0
+    return block_position_x, block_position_y
 
 
 def draw_white_block(block_position_x, block_position_y):
@@ -99,35 +108,27 @@ def draw_light(light_bulb_position_x, light_bulb_position_y):
 
 
 def draw_field():
-    global block_position_x, block_position_y, numbers
+    global block_position_x, block_position_y
     df = pd.read_csv(maze_dir, header=None, sep=";")
     for column_letter in range(len(df)):
         for row_letter in range(len(df[column_letter])):
             # print(df[row_letter][column_letter])
             if df[row_letter][column_letter] == "x":
                 draw_empty_block(block_position_x, block_position_y)
-                block_position_x += 30
-                if block_position_x >= window_width:
-                    block_position_y += 30
-                    block_position_x = 0
+                update_block()
             elif float(df[row_letter][column_letter]) in numbers:
                 number = df[row_letter][column_letter]
                 number = str(number)
                 draw_dark_grey_block(block_position_x, block_position_y, number)
-                block_position_x += 30
-                if block_position_x >= window_width:
-                    block_position_y += 30
-                    block_position_x = 0
+                update_block()
             else:
                 draw_white_block(block_position_x, block_position_y)
-                block_position_x += 30
-                if block_position_x >= window_width:
-                    block_position_y += 30
-                    block_position_x = 0
+                update_block()
 
     pygame.display.flip()
 
 
+window.fill(dark_grey)
 draw_field()
 
 is_running = True
