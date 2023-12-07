@@ -3,7 +3,7 @@ import pandas as pd
 
 pygame.init()
 #  Enter "lights1" (1-5) or "lights-small-1" (1-5) for the different mazes
-maze_name = "lights1.csv"
+maze_name = "lights-small-1.csv"
 maze_dir = ("lights-puzzles\\" + maze_name)
 
 white = (255, 255, 255)
@@ -38,6 +38,9 @@ light_bulb = pygame.image.load("assets\\lightbulb.png")
 block_position_x = 0
 block_position_y = 0
 
+turn_counter = 0
+turn_counter_text = font.render("Turn: " + str(turn_counter), False, white)
+
 numbers = []
 for index in range(5):
     numbers.append(index)
@@ -57,14 +60,23 @@ def update_block():
     if block_position_x >= window_width - menu_size:
         block_position_y += 30
         block_position_x = 0
-    return block_position_x, block_position_y
+    if block_position_y >= window_height:
+        block_position_x = 0
+        block_position_y = 0
+
+
+def update_counter():
+    global turn_counter
+    turn_counter += 1
+    turn_counter_text = font.render("Turn: " + str(turn_counter), False, white)
+    window.fill(dark_grey)
+    window.blit(turn_counter_text, (window_width - 100, 10))
 
 
 def draw_white_block(block_position_x, block_position_y):
     rect = (block_position_x, block_position_y, block_size, block_size)
     pygame.draw.rect(window, white, rect)
     pygame.draw.rect(window, dark_grey, rect, 2)
-    pygame.display.flip()
 
 
 def draw_dark_grey_block(block_position_x, block_position_y, number):
@@ -80,7 +92,6 @@ def draw_dark_grey_block(block_position_x, block_position_y, number):
     row = block_position_y // block_size
     maze_field[row][column] = "dark_grey"
     window.blit(number_surface, (text_x, text_y))
-    pygame.display.flip()
 
 
 def draw_empty_block(block_position_x, block_position_y):
@@ -90,12 +101,12 @@ def draw_empty_block(block_position_x, block_position_y):
     column = block_position_x // block_size
     row = block_position_y // block_size
     maze_field[row][column] = "dark_grey"
-    pygame.display.flip()
 
 
 def draw_light(light_bulb_position_x, light_bulb_position_y):
     global lit_blocks
     window.blit(light_bulb, (light_bulb_position_x + 2, light_bulb_position_y + 3))  # +3 to get it centered
+    update_counter()
     df = pd.read_csv(maze_dir, header=None, sep=";")
     for row_letter in range(len(df)):
         for column_letter in range(len(df[row_letter])):
@@ -115,21 +126,15 @@ def draw_field():
             # print(df[row_letter][column_letter])
             if df[row_letter][column_letter] == "x":
                 draw_empty_block(block_position_x, block_position_y)
-                update_block()
             elif float(df[row_letter][column_letter]) in numbers:
                 number = df[row_letter][column_letter]
                 number = str(number)
                 draw_dark_grey_block(block_position_x, block_position_y, number)
-                update_block()
             else:
                 draw_white_block(block_position_x, block_position_y)
-                update_block()
-
-    pygame.display.flip()
-
+            update_block()
 
 window.fill(dark_grey)
-draw_field()
 
 is_running = True
 while is_running:
@@ -143,7 +148,7 @@ while is_running:
             if mouse_x and mouse_y in lit_blocks:
                 print("Test")
             draw_light(mouse_x - (mouse_x % 30), mouse_y - (mouse_y % 30))
-
-    pygame.display.flip()
+        draw_field()
+    pygame.display.update()
 
 pygame.quit()
