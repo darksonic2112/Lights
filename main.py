@@ -104,7 +104,7 @@ def draw_empty_block(block_position_x, block_position_y):
 def draw_light(light_bulb_position_x, light_bulb_position_y):
     column = light_bulb_position_x // block_size
     row = light_bulb_position_y // block_size
-    if maze_field[row][column] != "dark_grey":
+    if maze_field[row][column] != "dark_grey" and maze_field[row][column] != "light_bulb":
         update_counter()
         maze_field[row][column] = "light_bulb"
     df = pd.read_csv(maze_dir, header=None, sep=";")
