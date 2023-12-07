@@ -45,8 +45,6 @@ numbers = []
 for index in range(5):
     numbers.append(index)
 
-global lit_blocks
-lit_blocks = []
 
 def get_block_at_mouse_position(mouse_x, mouse_y):
     column = mouse_x // block_size
@@ -104,18 +102,15 @@ def draw_empty_block(block_position_x, block_position_y):
 
 
 def draw_light(light_bulb_position_x, light_bulb_position_y):
-    global lit_blocks
-    window.blit(light_bulb, (light_bulb_position_x + 2, light_bulb_position_y + 3))  # +3 to get it centered
     update_counter()
+    column = light_bulb_position_x // block_size
+    row = light_bulb_position_y // block_size
+    maze_field[row][column] = "light_bulb"
     df = pd.read_csv(maze_dir, header=None, sep=";")
     for row_letter in range(len(df)):
         for column_letter in range(len(df[row_letter])):
             #  print(df[row_letter][column_letter])
             pass
-    lit_blocks.append((range(block_position_x - (block_position_x % 30), block_position_x - (block_position_x % 30) +
-                             block_size),
-                       range(block_position_y - (block_position_y % 30), block_position_y - (block_position_y % 30) +
-                             block_size)))
 
 
 def draw_field():
@@ -133,6 +128,10 @@ def draw_field():
             else:
                 draw_white_block(block_position_x, block_position_y)
             update_block()
+        for column in range(14):
+            for row in range(len(maze_field[column])):
+                if maze_field[row][column] == "light_bulb":
+                    window.blit(light_bulb, (column * 30 + 3, row * 30 + 3))  # +3 to get it centered
 
 window.fill(dark_grey)
 
@@ -143,10 +142,7 @@ while is_running:
             is_running = False
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-
             mouse_x, mouse_y = pygame.mouse.get_pos()
-            if mouse_x and mouse_y in lit_blocks:
-                print("Test")
             draw_light(mouse_x - (mouse_x % 30), mouse_y - (mouse_y % 30))
         draw_field()
     pygame.display.update()
