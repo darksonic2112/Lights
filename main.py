@@ -107,19 +107,50 @@ def draw_light(light_bulb_position_x, light_bulb_position_y):
     if maze_field[row][column] != "dark_grey" and maze_field[row][column] != "light_bulb":
         update_counter()
         maze_field[row][column] = "light_bulb"
-    df = pd.read_csv(maze_dir, header=None, sep=";")
-    for row_letter in range(len(df)):
-        for column_letter in range(len(df[row_letter])):
-            #  print(df[row_letter][column_letter])
-            pass
+        get_lit_blocks(row, column)
 
+
+def draw_lit_blocks(block_position_x, block_position_y):
+    rect = (block_position_x, block_position_y, block_size, block_size)
+    pygame.draw.rect(window, yellow, rect)
+    pygame.draw.rect(window, dark_grey, rect, 2)
+
+
+def get_lit_blocks(row, column):
+    current_row = row + 1
+    while current_row in range((window_width - menu_size) // block_size):
+        if maze_field[current_row][column] == "white"or maze_field[current_row][column] == "lit":
+            maze_field[current_row][column] = "lit"
+            current_row += 1
+        else:
+            break
+    current_row = row - 1
+    while current_row in range((window_width - menu_size) // block_size):
+        if maze_field[current_row][column] == "white"or maze_field[current_row][column] == "lit":
+            maze_field[current_row][column] = "lit"
+            current_row -= 1
+        else:
+            break
+    current_column = column + 1
+    while current_column in range(window_height // block_size):
+        if maze_field[row][current_column] == "white" or maze_field[row][current_column] == "lit":
+            maze_field[row][current_column] = "lit"
+            current_column += 1
+        else:
+            break
+    current_column = column - 1
+    while current_column in range(window_height // block_size):
+        if maze_field[row][current_column] == "white" or maze_field[row][current_column] == "lit":
+            maze_field[row][current_column] = "lit"
+            current_column -= 1
+        else:
+            break
 
 def draw_field():
     global block_position_x, block_position_y
     df = pd.read_csv(maze_dir, header=None, sep=";")
     for column_letter in range(len(df)):
         for row_letter in range(len(df[column_letter])):
-            # print(df[row_letter][column_letter])
             if df[row_letter][column_letter] == "x":
                 draw_empty_block(block_position_x, block_position_y)
             elif float(df[row_letter][column_letter]) in numbers:
@@ -129,10 +160,12 @@ def draw_field():
             else:
                 draw_white_block(block_position_x, block_position_y)
             update_block()
-        for column in range(14):
+        for column in range((window_width - menu_size) // block_size):
             for row in range(len(maze_field[column])):
                 if maze_field[row][column] == "light_bulb":
                     window.blit(light_bulb, (column * 30 + 3, row * 30 + 3))  # +3 to get it centered
+                elif maze_field[row][column] == "lit":
+                    draw_lit_blocks(column * 30, row * 30)
 
 window.fill(dark_grey)
 
