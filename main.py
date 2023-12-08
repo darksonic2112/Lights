@@ -27,8 +27,8 @@ block_size = 30
 font = pygame.font.Font(None, 30)
 
 rows, cols = (window_width // block_size, window_height // block_size)
-global maze_field
-maze_field = [["white" for i in range(cols)] for j in range(rows)]
+
+maze_field = [[0 for i in range(cols)] for j in range(rows)]
 
 window = pygame.display.set_mode((window_width, window_height))
 pygame.display.set_caption("Lights")
@@ -110,6 +110,10 @@ def draw_light(light_bulb_position_x, light_bulb_position_y):
         get_lit_blocks(row, column)
 
 
+def revert_light(light_bulb_position_x, light_bulb_position_y):
+    pass
+
+
 def draw_lit_blocks(block_position_x, block_position_y):
     rect = (block_position_x, block_position_y, block_size, block_size)
     pygame.draw.rect(window, yellow, rect)
@@ -119,30 +123,34 @@ def draw_lit_blocks(block_position_x, block_position_y):
 def get_lit_blocks(row, column):
     current_row = row + 1
     while current_row in range((window_width - menu_size) // block_size):
-        if maze_field[current_row][column] == "white"or maze_field[current_row][column] == "lit":
-            maze_field[current_row][column] = "lit"
-            current_row += 1
+        if isinstance(maze_field[current_row][column], int):
+            if maze_field[current_row][column] >= 0:
+                maze_field[current_row][column] += 1
+                current_row += 1
         else:
             break
     current_row = row - 1
     while current_row in range((window_width - menu_size) // block_size):
-        if maze_field[current_row][column] == "white"or maze_field[current_row][column] == "lit":
-            maze_field[current_row][column] = "lit"
-            current_row -= 1
+        if isinstance(maze_field[current_row][column], int):
+            if maze_field[current_row][column] >= 0:
+                maze_field[current_row][column] += 1
+                current_row -= 1
         else:
             break
     current_column = column + 1
     while current_column in range(window_height // block_size):
-        if maze_field[row][current_column] == "white" or maze_field[row][current_column] == "lit":
-            maze_field[row][current_column] = "lit"
-            current_column += 1
+        if isinstance(maze_field[row][current_column], int):
+            if maze_field[row][current_column] >= 0:
+                maze_field[row][current_column] += 1
+                current_column += 1
         else:
             break
     current_column = column - 1
     while current_column in range(window_height // block_size):
-        if maze_field[row][current_column] == "white" or maze_field[row][current_column] == "lit":
-            maze_field[row][current_column] = "lit"
-            current_column -= 1
+        if isinstance(maze_field[row][current_column], int):
+            if maze_field[row][current_column] >= 0:
+                maze_field[row][current_column] += 1
+                current_column -= 1
         else:
             break
 
@@ -164,8 +172,9 @@ def draw_field():
             for row in range(len(maze_field[column])):
                 if maze_field[row][column] == "light_bulb":
                     window.blit(light_bulb, (column * 30 + 3, row * 30 + 3))  # +3 to get it centered
-                elif maze_field[row][column] == "lit":
-                    draw_lit_blocks(column * 30, row * 30)
+                elif isinstance(maze_field[row][column], int):
+                    if maze_field[row][column] >= 1:
+                        draw_lit_blocks(column * 30, row * 30)
 
 window.fill(dark_grey)
 
