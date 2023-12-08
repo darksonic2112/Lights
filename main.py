@@ -12,6 +12,9 @@ yellow = (255, 255, 0)
 
 menu_size = 120
 
+LEFT = 1
+RIGHT = 3
+
 #  Small size field: 14x14 blocks
 #  Mid-size field: 25x25 blocks
 #  block size is set by the variable "block_size" of the size block_size * block_size
@@ -111,7 +114,12 @@ def draw_light(light_bulb_position_x, light_bulb_position_y):
 
 
 def revert_light(light_bulb_position_x, light_bulb_position_y):
-    pass
+    column = light_bulb_position_x // block_size
+    row = light_bulb_position_y // block_size
+    if maze_field[row][column] == "light_bulb":
+        update_counter()
+        maze_field[row][column] = 0
+        dim_lit_blocks(row, column)
 
 
 def draw_lit_blocks(block_position_x, block_position_y):
@@ -154,6 +162,40 @@ def get_lit_blocks(row, column):
         else:
             break
 
+def dim_lit_blocks(row, column):
+    current_row = row + 1
+    while current_row in range((window_width - menu_size) // block_size):
+        if isinstance(maze_field[current_row][column], int):
+            if maze_field[current_row][column] >= 0:
+                maze_field[current_row][column] -= 1
+                current_row += 1
+        else:
+            break
+    current_row = row - 1
+    while current_row in range((window_width - menu_size) // block_size):
+        if isinstance(maze_field[current_row][column], int):
+            if maze_field[current_row][column] >= 0:
+                maze_field[current_row][column] -= 1
+                current_row -= 1
+        else:
+            break
+    current_column = column + 1
+    while current_column in range(window_height // block_size):
+        if isinstance(maze_field[row][current_column], int):
+            if maze_field[row][current_column] >= 0:
+                maze_field[row][current_column] -= 1
+                current_column += 1
+        else:
+            break
+    current_column = column - 1
+    while current_column in range(window_height // block_size):
+        if isinstance(maze_field[row][current_column], int):
+            if maze_field[row][current_column] >= 0:
+                maze_field[row][current_column] -= 1
+                current_column -= 1
+        else:
+            break
+
 def draw_field():
     global block_position_x, block_position_y
     df = pd.read_csv(maze_dir, header=None, sep=";")
@@ -184,9 +226,12 @@ while is_running:
         if event.type == pygame.QUIT:
             is_running = False
 
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == LEFT:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             draw_light(mouse_x - (mouse_x % 30), mouse_y - (mouse_y % 30))
+        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == RIGHT:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            revert_light(mouse_x - (mouse_x % 30), mouse_y - (mouse_y % 30))
         draw_field()
     pygame.display.update()
 
