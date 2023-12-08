@@ -107,19 +107,21 @@ def draw_empty_block(block_position_x, block_position_y):
 def draw_light(light_bulb_position_x, light_bulb_position_y):
     column = light_bulb_position_x // block_size
     row = light_bulb_position_y // block_size
-    if maze_field[row][column] != "dark_grey" and maze_field[row][column] != "light_bulb":
-        update_counter()
-        maze_field[row][column] = "light_bulb"
-        get_lit_blocks(row, column)
+    if isinstance(maze_field[row][column], int):
+        if maze_field[row][column] < 100:
+            update_counter()
+            maze_field[row][column] += 100
+            get_lit_blocks(row, column)
 
 
 def revert_light(light_bulb_position_x, light_bulb_position_y):
     column = light_bulb_position_x // block_size
     row = light_bulb_position_y // block_size
-    if maze_field[row][column] == "light_bulb":
-        update_counter()
-        maze_field[row][column] = 0
-        dim_lit_blocks(row, column)
+    if isinstance(maze_field[row][column], int):
+        if maze_field[row][column] >= 100:
+            update_counter()
+            maze_field[row][column] -= 100
+            dim_lit_blocks(row, column)
 
 
 def draw_lit_blocks(block_position_x, block_position_y):
@@ -212,10 +214,10 @@ def draw_field():
             update_block()
         for column in range((window_width - menu_size) // block_size):
             for row in range(len(maze_field[column])):
-                if maze_field[row][column] == "light_bulb":
-                    window.blit(light_bulb, (column * 30 + 3, row * 30 + 3))  # +3 to get it centered
-                elif isinstance(maze_field[row][column], int):
-                    if maze_field[row][column] >= 1:
+                if isinstance(maze_field[row][column], int):
+                    if maze_field[row][column] >= 100:
+                        window.blit(light_bulb, (column * 30 + 3, row * 30 + 3))  # +3 to get it centered
+                    elif maze_field[row][column] >= 1:
                         draw_lit_blocks(column * 30, row * 30)
 
 window.fill(dark_grey)
