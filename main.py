@@ -3,7 +3,7 @@ import pandas as pd
 
 pygame.init()
 #  Enter "lights1" (1-5) or "lights-small-1" (1-5) for the different mazes
-maze_name = "lights-small-1.csv"
+maze_name = "lights1.csv"
 maze_dir = ("lights-puzzles\\" + maze_name)
 
 white = (255, 255, 255)
@@ -91,7 +91,7 @@ def draw_dark_grey_block(block_position_x, block_position_y, number):
     text_y = number_rect.centery - number_text_rect.height / 2
     column = block_position_x // block_size
     row = block_position_y // block_size
-    maze_field[row][column] = "dark_grey"
+    maze_field[row][column] = ("number_block", number)
     window.blit(number_surface, (text_x, text_y))
 
 
@@ -101,14 +101,14 @@ def draw_empty_block(block_position_x, block_position_y):
     pygame.draw.rect(window, dark_grey, rect, 2)
     column = block_position_x // block_size
     row = block_position_y // block_size
-    maze_field[row][column] = "dark_grey"
+    maze_field[row][column] = "empty_block"
 
 
 def draw_light(light_bulb_position_x, light_bulb_position_y):
     column = light_bulb_position_x // block_size
     row = light_bulb_position_y // block_size
     if isinstance(maze_field[row][column], int):
-        if maze_field[row][column] < 100:
+        if maze_field[row][column] == 0:
             update_counter()
             maze_field[row][column] += 100
             get_lit_blocks(row, column)
@@ -118,7 +118,7 @@ def revert_light(light_bulb_position_x, light_bulb_position_y):
     column = light_bulb_position_x // block_size
     row = light_bulb_position_y // block_size
     if isinstance(maze_field[row][column], int):
-        if maze_field[row][column] >= 100:
+        if maze_field[row][column] == 100:
             update_counter()
             maze_field[row][column] -= 100
             dim_lit_blocks(row, column)
@@ -236,5 +236,6 @@ while is_running:
             revert_light(mouse_x - (mouse_x % 30), mouse_y - (mouse_y % 30))
         draw_field()
     pygame.display.update()
+
 
 pygame.quit()
