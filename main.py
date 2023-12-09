@@ -142,13 +142,22 @@ def get_number_blocks(row, column, operator):
 
 
 def check_win():
+    won = True
     for column in range((window_width - menu_size) // block_size):
-        for row in range(len(maze_field[column])):
-            if maze_field[row][column] == 0 or maze_field[row][column] == "empty_block":
-                break
+        for row in range(len(maze_field)):
+            if maze_field[row][column] == "empty_block":
+                continue
+            elif isinstance(maze_field[row][column], int):
+                if maze_field[row][column] > 0:
+                    continue
             elif isinstance(maze_field[row][column], list):
                 if maze_field[row][column][1] == 0:
-                    break
+                    continue
+            won = False
+            break  # Break out of the inner loop if any condition is not met
+
+    if won:
+        print("You won!")
 
 def draw_lit_blocks(block_position_x, block_position_y):
     rect = (block_position_x, block_position_y, block_size, block_size)
