@@ -3,7 +3,7 @@ import pandas as pd
 
 pygame.init()
 #  Enter "lights1" (1-5) or "lights-small-1" (1-5) for the different mazes
-maze_name = "lights1.csv"
+maze_name = "lights-small-1.csv"
 maze_dir = ("lights-puzzles\\" + maze_name)
 
 white = (255, 255, 255)
@@ -43,6 +43,8 @@ block_position_y = 0
 
 turn_counter = 0
 turn_counter_text = font.render("Turn: " + str(turn_counter), False, white)
+
+ran = False
 
 numbers = []
 for index in range(5):
@@ -91,7 +93,8 @@ def draw_dark_grey_block(block_position_x, block_position_y, number):
     text_y = number_rect.centery - number_text_rect.height / 2
     column = block_position_x // block_size
     row = block_position_y // block_size
-    maze_field[row][column] = ("number_block", number)
+    if ran == False:
+        maze_field[row][column] = ["number_block", int(float(number))]
     window.blit(number_surface, (text_x, text_y))
 
 
@@ -112,6 +115,7 @@ def draw_light(light_bulb_position_x, light_bulb_position_y):
             update_counter()
             maze_field[row][column] += 100
             get_lit_blocks(row, column)
+            get_number_blocks(row, column, -1)
 
 
 def revert_light(light_bulb_position_x, light_bulb_position_y):
@@ -122,7 +126,29 @@ def revert_light(light_bulb_position_x, light_bulb_position_y):
             update_counter()
             maze_field[row][column] -= 100
             dim_lit_blocks(row, column)
+            get_number_blocks(row, column, 1)
 
+
+def get_number_blocks(row, column, operator):
+    if isinstance(maze_field[row - 1][column], list):
+        maze_field[row - 1][column][1] += operator
+    if isinstance(maze_field[row + 1][column], list):
+        maze_field[row + 1][column][1] += operator
+    if isinstance(maze_field[row][column - 1], list):
+        maze_field[row][column - 1][1] += operator
+    if column + 1 < (window_width - menu_size) // block_size:
+        if isinstance(maze_field[row][column + 1], list):
+            maze_field[row][column + 1][1] += operator
+
+
+def check_win():
+    for column in range((window_width - menu_size) // block_size):
+        for row in range(len(maze_field[column])):
+            if maze_field[row][column] == 0 or maze_field[row][column] == "empty_block":
+                break
+            elif isinstance(maze_field[row][column], list):
+                if maze_field[row][column][1] == 0:
+                    break
 
 def draw_lit_blocks(block_position_x, block_position_y):
     rect = (block_position_x, block_position_y, block_size, block_size)
@@ -199,7 +225,7 @@ def dim_lit_blocks(row, column):
             break
 
 def draw_field():
-    global block_position_x, block_position_y
+    global block_position_x, block_position_y, ran
     df = pd.read_csv(maze_dir, header=None, sep=";")
     for column_letter in range(len(df)):
         for row_letter in range(len(df[column_letter])):
@@ -219,7 +245,7 @@ def draw_field():
                         window.blit(light_bulb, (column * 30 + 3, row * 30 + 3))  # +3 to get it centered
                     elif maze_field[row][column] >= 1:
                         draw_lit_blocks(column * 30, row * 30)
-
+    ran = True
 window.fill(dark_grey)
 
 is_running = True
@@ -230,12 +256,13 @@ while is_running:
 
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == LEFT:
             mouse_x, mouse_y = pygame.mouse.get_pos()
-            draw_light(mouse_x - (mouse_x % 30), mouse_y - (mouse_y % 30))
+            if mouse_x < window_width - menu_size:
+                draw_light(mouse_x - (mouse_x % 30), mouse_y - (mouse_y % 30))
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == RIGHT:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             revert_light(mouse_x - (mouse_x % 30), mouse_y - (mouse_y % 30))
         draw_field()
     pygame.display.update()
-
-
+    check_win()
+print(maze_field)
 pygame.quit()
