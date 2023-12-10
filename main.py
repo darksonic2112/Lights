@@ -30,7 +30,6 @@ block_size = 30
 font = pygame.font.Font(None, 30)
 
 rows, cols = (window_width // block_size, window_height // block_size)
-
 maze_field = [[0 for i in range(cols)] for j in range(rows)]
 
 window = pygame.display.set_mode((window_width, window_height))
