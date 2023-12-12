@@ -11,22 +11,22 @@ dark_grey = (25, 25, 25)
 yellow = (255, 255, 0)
 
 menu_size = 120
+block_size = 30
 
-LEFT = 1
-RIGHT = 3
+LEFT_MOUSEBUTTON = 1
+RIGHT_MOUSEBUTTON = 3
 
 #  Small size field: 14x14 blocks
 #  Mid-size field: 25x25 blocks
 #  block size is set by the variable "block_size" of the size block_size * block_size
 #  block_size should be dividable by window_width and window_height, so that modulo equals 0
 if maze_name[6] == "-":  # "-" for the distinction of "lights" and "lights-small" puzzles
-    window_width = 420 + menu_size
-    window_height = 420
+    window_width = block_size * 14 + menu_size
+    window_height = block_size * 14
 else:
-    window_width = 750 + menu_size
-    window_height = 750
+    window_width = block_size * 25 + menu_size
+    window_height = block_size * 25
 
-block_size = 30
 font = pygame.font.Font(None, 30)
 
 rows, cols = (window_width // block_size, window_height // block_size)
@@ -262,11 +262,11 @@ while is_running:
         if event.type == pygame.QUIT:
             is_running = False
 
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == LEFT:
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == LEFT_MOUSEBUTTON:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             if mouse_x < window_width - menu_size:
                 draw_light(mouse_x - (mouse_x % 30), mouse_y - (mouse_y % 30))
-        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == RIGHT:
+        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == RIGHT_MOUSEBUTTON:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             revert_light(mouse_x - (mouse_x % 30), mouse_y - (mouse_y % 30))
         draw_field()
