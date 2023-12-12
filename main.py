@@ -16,6 +16,9 @@ block_size = 30
 LEFT_MOUSEBUTTON = 1
 RIGHT_MOUSEBUTTON = 3
 
+turn_light_on = 100
+turn_light_off = -100
+
 #  Small size field: 14x14 blocks
 #  Mid-size field: 25x25 blocks
 #  block size is set by the variable "block_size" of the size block_size * block_size
@@ -56,7 +59,7 @@ def get_block_at_mouse_position(mouse_x, mouse_y):
     return column, row
 
 
-def update_block():
+def update_block_position():
     global block_position_x, block_position_y
     block_position_x += 30
     if block_position_x >= window_width - menu_size:
@@ -75,36 +78,37 @@ def update_counter():
     window.blit(turn_counter_text, (window_width - 100, 10))
 
 
-def draw_white_block(block_position_x, block_position_y):
-    rect = (block_position_x, block_position_y, block_size, block_size)
-    pygame.draw.rect(window, white, rect)
-    pygame.draw.rect(window, dark_grey, rect, 2)
-
-
-def draw_dark_grey_block(block_position_x, block_position_y, number):
-    number_rect = pygame.Rect(block_position_x, block_position_y, block_size, block_size)
-    number_surface = font.render(str(int(float(number))), True, white)
-    number_text_rect = number_surface.get_rect()
-    number_text_rect.center = number_rect.center
-    pygame.draw.rect(window, dark_grey, number_rect)
-    pygame.draw.rect(window, dark_grey, number_rect, 2)
-    text_x = number_rect.centerx - number_text_rect.width / 2
-    text_y = number_rect.centery - number_text_rect.height / 2
+def draw_block(block_position_x, block_position_y, color, number=None):
     column = block_position_x // block_size
     row = block_position_y // block_size
-    if ran == False:
-        maze_field[row][column] = ["number_block", int(float(number))]
-    window.blit(number_surface, (text_x, text_y))
-
-
-def draw_empty_block(block_position_x, block_position_y):
     rect = pygame.Rect(block_position_x, block_position_y, block_size, block_size)
-    pygame.draw.rect(window, dark_grey, rect)
+    pygame.draw.rect(window, color, rect)
     pygame.draw.rect(window, dark_grey, rect, 2)
-    column = block_position_x // block_size
-    row = block_position_y // block_size
-    maze_field[row][column] = "empty_block"
+    if number:
+        number_surface = font.render(str(int(float(number))), True, white)
+        number_text_rect = number_surface.get_rect()
+        number_text_rect.center = rect.center
+        text_x = rect.centerx - number_text_rect.width / 2
+        text_y = rect.centery - number_text_rect.height / 2
+        window.blit(number_surface, (text_x, text_y))
+        if not ran:
+            maze_field[row][column] = ["number_block", int(float(number))]
+    elif color == dark_grey:
+        maze_field[row][column] = "empty_block"
 
+
+def update_light_source(light_bulb_position_x, light_bulb_position_y, state):
+    column = light_bulb_position_x // block_size
+    row = light_bulb_position_y // block_size
+    if isinstance(maze_field[row][column], int):
+        if state == turn_light_on and maze_field[row][column] == 0:
+            get_lit_blocks(row, column)
+            get_number_blocks(row, column, -1)
+        elif state == turn_light_off and maze_field[row][column] == turn_light_on:
+            dim_lit_blocks(row, column)
+            get_number_blocks(row, column, 1)
+        maze_field[row][column] += state
+        update_counter()
 
 def draw_light(light_bulb_position_x, light_bulb_position_y):
     column = light_bulb_position_x // block_size
@@ -238,14 +242,14 @@ def draw_field():
     for column_letter in range(len(df)):
         for row_letter in range(len(df[column_letter])):
             if df[row_letter][column_letter] == "x":
-                draw_empty_block(block_position_x, block_position_y)
+                draw_block(block_position_x, block_position_y, dark_grey)
             elif float(df[row_letter][column_letter]) in numbers:
                 number = df[row_letter][column_letter]
                 number = str(number)
-                draw_dark_grey_block(block_position_x, block_position_y, number)
+                draw_block(block_position_x, block_position_y, dark_grey, number)
             else:
-                draw_white_block(block_position_x, block_position_y)
-            update_block()
+                draw_block(block_position_x, block_position_y, white)
+            update_block_position()
         for column in range((window_width - menu_size) // block_size):
             for row in range(len(maze_field[column])):
                 if isinstance(maze_field[row][column], int):
@@ -265,12 +269,13 @@ while is_running:
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == LEFT_MOUSEBUTTON:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             if mouse_x < window_width - menu_size:
-                draw_light(mouse_x - (mouse_x % 30), mouse_y - (mouse_y % 30))
+                update_light_source(mouse_x - (mouse_x % 30), mouse_y - (mouse_y % 30), turn_light_on)
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == RIGHT_MOUSEBUTTON:
             mouse_x, mouse_y = pygame.mouse.get_pos()
-            revert_light(mouse_x - (mouse_x % 30), mouse_y - (mouse_y % 30))
+            if mouse_x < window_width - menu_size:
+                update_light_source(mouse_x - (mouse_x % 30), mouse_y - (mouse_y % 30), turn_light_off)
         draw_field()
     pygame.display.update()
     check_win()
-print(maze_field)
+print(turn_light_off)
 pygame.quit()
