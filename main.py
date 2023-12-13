@@ -59,6 +59,14 @@ def get_block_at_mouse_position(mouse_x, mouse_y):
     return column, row
 
 
+def update_counter():
+    global turn_counter
+    turn_counter += 1
+    turn_counter_text = font.render("Turn: " + str(turn_counter), False, white)
+    window.fill(dark_grey)
+    window.blit(turn_counter_text, (window_width - 100, 10))
+
+
 def update_block_position():
     global block_position_x, block_position_y
     block_position_x += 30
@@ -69,172 +77,6 @@ def update_block_position():
         block_position_x = 0
         block_position_y = 0
 
-
-def update_counter():
-    global turn_counter
-    turn_counter += 1
-    turn_counter_text = font.render("Turn: " + str(turn_counter), False, white)
-    window.fill(dark_grey)
-    window.blit(turn_counter_text, (window_width - 100, 10))
-
-
-def draw_block(block_position_x, block_position_y, color, number=None):
-    column = block_position_x // block_size
-    row = block_position_y // block_size
-    rect = pygame.Rect(block_position_x, block_position_y, block_size, block_size)
-    pygame.draw.rect(window, color, rect)
-    pygame.draw.rect(window, dark_grey, rect, 2)
-    if number:
-        number_surface = font.render(str(int(float(number))), True, white)
-        number_text_rect = number_surface.get_rect()
-        number_text_rect.center = rect.center
-        text_x = rect.centerx - number_text_rect.width / 2
-        text_y = rect.centery - number_text_rect.height / 2
-        window.blit(number_surface, (text_x, text_y))
-        if not ran:
-            maze_field[row][column] = ["number_block", int(float(number))]
-    elif color == dark_grey:
-        maze_field[row][column] = "empty_block"
-
-
-def update_light_source(light_bulb_position_x, light_bulb_position_y, state):
-    column = light_bulb_position_x // block_size
-    row = light_bulb_position_y // block_size
-    if isinstance(maze_field[row][column], int):
-        if state == turn_light_on and maze_field[row][column] == 0:
-            get_lit_blocks(row, column)
-            get_number_blocks(row, column, -1)
-        elif state == turn_light_off and maze_field[row][column] == turn_light_on:
-            dim_lit_blocks(row, column)
-            get_number_blocks(row, column, 1)
-        maze_field[row][column] += state
-        update_counter()
-
-def draw_light(light_bulb_position_x, light_bulb_position_y):
-    column = light_bulb_position_x // block_size
-    row = light_bulb_position_y // block_size
-    if isinstance(maze_field[row][column], int):
-        if maze_field[row][column] == 0:
-            update_counter()
-            maze_field[row][column] += 100
-            get_lit_blocks(row, column)
-            get_number_blocks(row, column, -1)
-
-
-def revert_light(light_bulb_position_x, light_bulb_position_y):
-    column = light_bulb_position_x // block_size
-    row = light_bulb_position_y // block_size
-    if isinstance(maze_field[row][column], int):
-        if maze_field[row][column] == 100:
-            update_counter()
-            maze_field[row][column] -= 100
-            dim_lit_blocks(row, column)
-            get_number_blocks(row, column, 1)
-
-
-def get_number_blocks(row, column, operator):
-    if isinstance(maze_field[row - 1][column], list):
-        maze_field[row - 1][column][1] += operator
-    if isinstance(maze_field[row + 1][column], list):
-        maze_field[row + 1][column][1] += operator
-    if isinstance(maze_field[row][column - 1], list):
-        maze_field[row][column - 1][1] += operator
-    if column + 1 < (window_width - menu_size) // block_size:
-        if isinstance(maze_field[row][column + 1], list):
-            maze_field[row][column + 1][1] += operator
-
-
-def check_win():
-    won = True
-    for column in range((window_width - menu_size) // block_size):
-        for row in range(len(maze_field)):
-            if maze_field[row][column] == "empty_block":
-                continue
-            elif isinstance(maze_field[row][column], int):
-                if maze_field[row][column] > 0:
-                    continue
-            elif isinstance(maze_field[row][column], list):
-                if maze_field[row][column][1] == 0:
-                    continue
-            won = False
-            break  # Break out of the inner loop if any condition is not met
-
-    if won:
-        print("You won!")
-
-def draw_lit_blocks(block_position_x, block_position_y):
-    rect = (block_position_x, block_position_y, block_size, block_size)
-    pygame.draw.rect(window, yellow, rect)
-    pygame.draw.rect(window, dark_grey, rect, 2)
-
-
-def get_lit_blocks(row, column):
-    current_row = row + 1
-    while current_row in range((window_width - menu_size) // block_size):
-        if isinstance(maze_field[current_row][column], int):
-            if maze_field[current_row][column] >= 0:
-                maze_field[current_row][column] += 1
-                current_row += 1
-        else:
-            break
-    current_row = row - 1
-    while current_row in range((window_width - menu_size) // block_size):
-        if isinstance(maze_field[current_row][column], int):
-            if maze_field[current_row][column] >= 0:
-                maze_field[current_row][column] += 1
-                current_row -= 1
-        else:
-            break
-    current_column = column + 1
-    while current_column in range(window_height // block_size):
-        if isinstance(maze_field[row][current_column], int):
-            if maze_field[row][current_column] >= 0:
-                maze_field[row][current_column] += 1
-                current_column += 1
-        else:
-            break
-    current_column = column - 1
-    while current_column in range(window_height // block_size):
-        if isinstance(maze_field[row][current_column], int):
-            if maze_field[row][current_column] >= 0:
-                maze_field[row][current_column] += 1
-                current_column -= 1
-        else:
-            break
-
-def dim_lit_blocks(row, column):
-    current_row = row + 1
-    while current_row in range((window_width - menu_size) // block_size):
-        if isinstance(maze_field[current_row][column], int):
-            if maze_field[current_row][column] >= 0:
-                maze_field[current_row][column] -= 1
-                current_row += 1
-        else:
-            break
-    current_row = row - 1
-    while current_row in range((window_width - menu_size) // block_size):
-        if isinstance(maze_field[current_row][column], int):
-            if maze_field[current_row][column] >= 0:
-                maze_field[current_row][column] -= 1
-                current_row -= 1
-        else:
-            break
-    current_column = column + 1
-    while current_column in range(window_height // block_size):
-        if isinstance(maze_field[row][current_column], int):
-            if maze_field[row][current_column] >= 0:
-                maze_field[row][current_column] -= 1
-                current_column += 1
-        else:
-            break
-    current_column = column - 1
-    while current_column in range(window_height // block_size):
-        if isinstance(maze_field[row][current_column], int):
-            if maze_field[row][current_column] >= 0:
-                maze_field[row][current_column] -= 1
-                current_column -= 1
-        else:
-            break
 
 def draw_field():
     global block_position_x, block_position_y, ran
@@ -258,8 +100,116 @@ def draw_field():
                     elif maze_field[row][column] >= 1:
                         draw_lit_blocks(column * 30, row * 30)
     ran = True
-window.fill(dark_grey)
 
+
+def draw_block(block_position_x, block_position_y, color, number=None):
+    column = block_position_x // block_size
+    row = block_position_y // block_size
+    rect = pygame.Rect(block_position_x, block_position_y, block_size, block_size)
+    pygame.draw.rect(window, color, rect)
+    pygame.draw.rect(window, dark_grey, rect, 2)
+    if number:
+        number_surface = font.render(str(int(float(number))), True, white)
+        number_text_rect = number_surface.get_rect()
+        number_text_rect.center = rect.center
+        text_x = rect.centerx - number_text_rect.width / 2
+        text_y = rect.centery - number_text_rect.height / 2
+        window.blit(number_surface, (text_x, text_y))
+        if not ran:
+            maze_field[row][column] = ["number_block", int(float(number))]
+    elif color == dark_grey:
+        maze_field[row][column] = "empty_block"
+
+
+def get_number_blocks(row, column, operator):
+    if isinstance(maze_field[row - 1][column], list):
+        maze_field[row - 1][column][1] += operator
+    if isinstance(maze_field[row + 1][column], list):
+        maze_field[row + 1][column][1] += operator
+    if isinstance(maze_field[row][column - 1], list):
+        maze_field[row][column - 1][1] += operator
+    if column + 1 < (window_width - menu_size) // block_size:
+        if isinstance(maze_field[row][column + 1], list):
+            maze_field[row][column + 1][1] += operator
+
+
+def update_light_source(light_bulb_position_x, light_bulb_position_y, state):
+    column = light_bulb_position_x // block_size
+    row = light_bulb_position_y // block_size
+    if isinstance(maze_field[row][column], int):
+        if state == turn_light_on and maze_field[row][column] == 0:
+            get_lit_blocks(row, column, 1)
+            get_number_blocks(row, column, -1)
+            maze_field[row][column] += state
+            update_counter()
+        elif state == turn_light_off and maze_field[row][column] == turn_light_on:
+            get_lit_blocks(row, column, -1)
+            get_number_blocks(row, column, 1)
+            maze_field[row][column] += state
+            update_counter()
+
+
+def get_lit_blocks(row, column, operator):
+    current_row = row + 1
+    while current_row in range((window_width - menu_size) // block_size):
+        if isinstance(maze_field[current_row][column], int):
+            if maze_field[current_row][column] >= 0:
+                maze_field[current_row][column] += operator
+                current_row += 1
+        else:
+            break
+    current_row = row - 1
+    while current_row in range((window_width - menu_size) // block_size):
+        if isinstance(maze_field[current_row][column], int):
+            if maze_field[current_row][column] >= 0:
+                maze_field[current_row][column] += operator
+                current_row -= 1
+        else:
+            break
+    current_column = column + 1
+    while current_column in range(window_height // block_size):
+        if isinstance(maze_field[row][current_column], int):
+            if maze_field[row][current_column] >= 0:
+                maze_field[row][current_column] += operator
+                current_column += 1
+        else:
+            break
+    current_column = column - 1
+    while current_column in range(window_height // block_size):
+        if isinstance(maze_field[row][current_column], int):
+            if maze_field[row][current_column] >= 0:
+                maze_field[row][current_column] += operator
+                current_column -= 1
+        else:
+            break
+
+
+def draw_lit_blocks(block_position_x, block_position_y):
+    rect = (block_position_x, block_position_y, block_size, block_size)
+    pygame.draw.rect(window, yellow, rect)
+    pygame.draw.rect(window, dark_grey, rect, 2)
+
+
+def check_win():
+    won = True
+    for column in range((window_width - menu_size) // block_size):
+        for row in range(len(maze_field)):
+            if maze_field[row][column] == "empty_block":
+                continue
+            elif isinstance(maze_field[row][column], int):
+                if maze_field[row][column] > 0:
+                    continue
+            elif isinstance(maze_field[row][column], list):
+                if maze_field[row][column][1] == 0:
+                    continue
+            won = False
+            break
+
+    if won:  # Can be changed to whatever is desired
+        print("You won!")
+
+
+window.fill(dark_grey)
 is_running = True
 while is_running:
     for event in pygame.event.get():
@@ -277,5 +227,6 @@ while is_running:
         draw_field()
     pygame.display.update()
     check_win()
-print(turn_light_off)
+
+print(maze_field)  # for debugging field
 pygame.quit()
