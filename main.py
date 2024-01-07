@@ -8,6 +8,7 @@ maze_dir = ("lights-puzzles\\" + maze_name)
 
 white = (255, 255, 255)
 dark_grey = (25, 25, 25)
+grey = (50, 50, 50)
 yellow = (255, 255, 0)
 
 menu_size = 120
@@ -47,6 +48,9 @@ turn_counter = 0
 turn_counter_text = font.render("Turn: " + str(turn_counter), False, white)
 
 ran = False
+
+reset_button_text = "Reset Game"
+reset_button_rect = pygame.Rect(0, 0, 100, 50)
 
 numbers = []
 for index in range(5):
@@ -99,6 +103,11 @@ def draw_field():
                         window.blit(light_bulb, (column * 30 + 3, row * 30 + 3))  # +3 to get it centered
                     elif maze_field[row][column] >= 1:
                         draw_lit_blocks(column * 30, row * 30)
+    reset_button_surface = font.render(reset_button_text, True, dark_grey)
+    reset_text_rect = reset_button_surface.get_rect()
+    reset_text_rect.center = reset_button_rect.center
+    pygame.draw.rect(window, grey, reset_button_rect)
+    reset_button_rect.center = (window_width - menu_size + 60, 40)
     ran = True
 
 
