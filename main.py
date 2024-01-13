@@ -32,6 +32,7 @@ else:
     window_height = block_size * 25
 
 font = pygame.font.Font(None, 30)
+reset_font = pygame.font.Font(None, 20)
 
 rows, cols = (window_width // block_size, window_height // block_size)
 maze_field = [[0 for i in range(cols)] for j in range(rows)]
@@ -103,12 +104,21 @@ def draw_field():
                         window.blit(light_bulb, (column * 30 + 3, row * 30 + 3))  # +3 to get it centered
                     elif maze_field[row][column] >= 1:
                         draw_lit_blocks(column * 30, row * 30)
-    reset_button_surface = font.render(reset_button_text, True, dark_grey)
+    reset_button_surface = reset_font.render(reset_button_text, True, white)
     reset_text_rect = reset_button_surface.get_rect()
     reset_text_rect.center = reset_button_rect.center
-    pygame.draw.rect(window, grey, reset_button_rect)
-    reset_button_rect.center = (window_width - menu_size + 60, 40)
+    reset_button_rect.center = (window_width - menu_size + 60, 60)
     ran = True
+
+    mouse = pygame.mouse.get_pos()
+
+    if (window_width - menu_size + 10 <= mouse[0] <= window_width - menu_size + 10 + reset_button_rect.width and
+            33 <= mouse[1] <= 33 + reset_button_rect.height): #  10 and 33 are offset numbers to align in the graphic
+        pygame.draw.rect(window, (70, 70, 70), reset_button_rect)
+    else:
+        pygame.draw.rect(window, grey, reset_button_rect)
+
+    window.blit(reset_button_surface, reset_text_rect)
 
 
 def draw_block(block_position_x, block_position_y, color, number=None):
@@ -215,8 +225,19 @@ def check_win():
             break
 
     if won:  # Can be changed to whatever is desired
-        print("You won!")
+        print("You won in " + turn_counter + " turns!")
+        reset_game()
 
+
+def reset_game():
+    global turn_counter
+    turn_counter = 0
+    for column in range((window_width - menu_size) // block_size):
+        for row in range(len(maze_field)):
+            if isinstance(maze_field[row][column], int):
+                maze_field[row][column] = 0
+    pygame.display.update()
+    window.fill(dark_grey)
 
 window.fill(dark_grey)
 is_running = True
@@ -233,6 +254,9 @@ while is_running:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             if mouse_x < window_width - menu_size:
                 update_light_source(mouse_x - (mouse_x % 30), mouse_y - (mouse_y % 30), turn_light_off)
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if reset_button_rect.collidepoint(event.pos):
+                reset_game()
         draw_field()
     pygame.display.update()
     check_win()
